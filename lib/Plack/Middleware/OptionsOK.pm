@@ -61,6 +61,20 @@ app. There will be no further processing after this
 
 The the Allow header can be altered, it defaults to the list above
 
+=head1 AUTHOR
+
+Leo Lapworth, LLAP@cuckoo.org
+
+=head1 Repository (git)
+
+https://github.com/ranguard/Plack-Middleware-OptionsOK, git://github.com/ranguard/Plack-Middleware-OptionsOK.git
+
+=head1 COPYRIGHT
+
+Copyright (c) 2011 Leo Lapworth. All rights reserved.
+This program is free software; you can redistribute
+it and/or modify it under the same terms as Perl itself.
+
 =head1 SEE ALSO
 
 L<Plack> L<Plack::Builder> L<Perlbal>
