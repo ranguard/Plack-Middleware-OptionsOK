@@ -9,7 +9,7 @@ my $app = sub {
 };
 
 $app = builder {
-    enable "OptionsOK";
+    enable "OptionsOK", allow => 'GET POST';
     $app;
 };
 
@@ -30,6 +30,7 @@ test_psgi
 
     $req = HTTP::Request->new( 'OPTIONS', '*' );
     $res = $cb->($req);
+    is $res->header('Allow'), 'GET POST';
     is $res->code,    200;
     is $res->content, "";
     };
