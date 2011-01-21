@@ -2,7 +2,7 @@ package Plack::Middleware::OptionsOK;
 
 use strict;
 use warnings;
-
+use Plack::Util::Accessor qw(allow);
 use parent qw( Plack::Middleware );
 
 our $VERSION = 0.01;
@@ -15,7 +15,8 @@ sub call {
     {
 
         # We match /* because of the tests
-        return [ 200, [], [] ];
+	my $allow = $self->allow || 'GET POST PUT DELETE OPTIONS';
+	return [ 200, ['Allow' => $allow ], [] ];
     }
 
     # Not an OPTIONS * request, carry on...
@@ -39,7 +40,7 @@ __END__
   my $app = sub { ... } # as usual
 
   builder {
-      enable "Plack::Middleware::OptionsOK";
+      enable "Plack::Middleware::OptionsOK",
       $app;
   };
 
@@ -51,6 +52,14 @@ Many reverse Proxy servers (such as L<Perlbal>) use an
 This middleware will respond with a '200' to this
 request so you do not have to handle it in your
 app. There will be no further processing after this
+
+=head1 OPTIONS
+
+=head2 allow
+	
+   allow => 'GET POST PUT DELETE OPTIONS'
+
+The the Allow header can be altered, it defaults to the list above
 
 =head1 SEE ALSO
 
