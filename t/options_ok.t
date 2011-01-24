@@ -9,7 +9,7 @@ my $app = sub {
 };
 
 $app = builder {
-    enable "OptionsOK", allow => 'GET POST';
+    enable "OptionsOK", allow_methods => 'GET POST';
     $app;
 };
 
@@ -23,7 +23,7 @@ test_psgi
     client => sub {
     my $cb = shift;
 
-    my $req = HTTP::Request->new( 'GET', '/' );
+    my $req = HTTP::Request->new( 'GET', '/foo' );
     my $res = $cb->($req);
     is $res->code,    200;
     is $res->content, "Hello";
