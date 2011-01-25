@@ -32,26 +32,57 @@ sub prepare_app {
 sub call {
     my ( $self, $env ) = @_;
 
-    my $res = $self->_handle_options($env);
+    # We only care about matching paths
+    # my $path_match = $self->path or return;
+    # return unless $env->{PATH_INFO} =~ /$path_match/;
+
+    my $headers = [];
+
+    if ( $self->cors() ) {
+        ### THIS WHOLE BIT HAS NOTHING TO DO WITH 'OPTIONS' ??
+
+
+        # IF cors_active then always want these headers set
+        # cross-origin resource sharing http://www.w3.org/TR/cors/
+
+        my $origin = $self->origin;
+
+        # This is mostly written in accordance with:
+        # https://developer.mozilla.org/en/HTTP_access_control
+        $origin = $env->{HTTP_ORIGIN}
+            if ( $origin eq '*'
+            && $self->credentials
+            && defined $env->{HTTP_ORIGIN} );
+
+        # What happens if we have several origins (proxy servers?)
+        $headers = [ 'Access-Control-Allow-Origin' => $origin ];
+
+        push( @$headers, 'Access-Control-Allow-Credentials' => 'true' )
+            if $self->credentials();
+
+    }
+
+    my $res = $self->_handle_options($env, $headers);
 
     return $res if $res;
 
-    # otherwise carry on as normal
-    $self->app->($env);
+    my $r = $self->app->($env);
+    
+    $self->response_cb(
+        $r,
+        sub {
+            my $r = shift;
+            push( @{ $r->[1] }, @$headers );
+        }
+    );
 
 }
 
 sub _handle_options {
-    my ( $self, $env ) = @_;
+    my ( $self, $env, $headers ) = @_;
 
     # We only deal with 'OPTIONS'
     return unless $env->{REQUEST_METHOD} eq 'OPTIONS';
-
-    # We only care about matching paths
-    my $path_match = $self->path or return;
-    return unless $env->{PATH_INFO} =~ /$path_match/;
-
-    my $headers = [];
 
     if ( $self->cors() ) {
 
@@ -79,39 +110,7 @@ sub _handle_options {
         return [ 200, [ 'Allow' => $self->allow_methods ], [] ];
     }
 
-    my $r = $self->app->($env);
-
-    if ( $self->cors() ) {
-
-        # IF cors_active then always want these headers set
-        # cross-origin resource sharing http://www.w3.org/TR/cors/
-
-        my $origin = $self->origin;
-
-        # This is mostly written in accordance with:
-        # https://developer.mozilla.org/en/HTTP_access_control
-        $origin = $env->{HTTP_ORIGIN}
-            if ( $origin eq '*'
-            && $self->credentials
-            && defined $env->{HTTP_ORIGIN} );
-
-        # What happens if we have several origins (proxy servers?)
-        $headers = [ 'Access-Control-Allow-Origin' => $origin ];
-
-        push( @$headers, 'Access-Control-Allow-Credentials' => 'true' )
-            if $self->credentials();
-
-        $self->response_cb(
-            $r,
-            sub {
-                my $r = shift;
-                push( @{ $r->[1] }, @$headers );
-            }
-        );
-
-    }
-
-    return $r;
+    return;
 }
 
 1;
