@@ -1,4 +1,8 @@
-# History for Plack::Middleware::OptionsOK
+Revision history for Plack::Middleware::OptionsOK
 
-0.01    Fri Jan 21 10:49:38 GMT 2011
-        Initial version
+0.02  2014-04-25
+      - Added the '/' URL
+      - Changed the default allowed methods to HEAD, GET and OPTIONS.
+
+0.01  2011-01-21
+      - Initial version
