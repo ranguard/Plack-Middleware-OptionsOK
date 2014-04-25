@@ -5,18 +5,21 @@ use warnings;
 use Plack::Util::Accessor qw(allow);
 use parent qw( Plack::Middleware );
 
-our $VERSION = 0.01;
+our $VERSION = 0.02;
 
 sub call {
     my ( $self, $env ) = @_;
 
-    if ( $env->{REQUEST_METHOD} eq 'OPTIONS'
-        && ( $env->{REQUEST_URI} eq '*' || $env->{REQUEST_URI} eq '/*' ) )
+    if ($env->{REQUEST_METHOD} eq 'OPTIONS'
+        && (   $env->{REQUEST_URI} eq '*'
+            || $env->{REQUEST_URI} eq '/'
+            || $env->{REQUEST_URI} eq '/*' )
+        )
     {
 
         # We match /* because of the tests
-	my $allow = $self->allow || 'GET POST PUT DELETE OPTIONS';
-	return [ 200, ['Allow' => $allow ], [] ];
+        my $allow = $self->allow || 'GET HEAD OPTIONS';
+        return [ 200, [ 'Allow' => $allow ], [] ];
     }
 
     # Not an OPTIONS * request, carry on...
@@ -56,14 +59,18 @@ app. There will be no further processing after this
 =head1 OPTIONS
 
 =head2 allow
-	
-   allow => 'GET POST PUT DELETE OPTIONS'
 
-The the Allow header can be altered, it defaults to the list above
+   allow => 'GET HEAD OPTIONS'
+
+The the C<Allow> header can be altered, it defaults to the list above.
 
 =head1 AUTHOR
 
 Leo Lapworth, LLAP@cuckoo.org
+
+=head2 Contributors
+
+Robert Rothenberg, rrwo@cpan.org
 
 =head1 Repository (git)
 
