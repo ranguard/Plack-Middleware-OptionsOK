@@ -33,5 +33,12 @@ test_psgi
     is $res->header('Allow'), 'GET POST';
     is $res->code,    200;
     is $res->content, "";
+
+    $req = HTTP::Request->new( 'OPTIONS', '/' );
+    $res = $cb->($req);
+    is $res->header('Allow'), 'GET POST';
+    is $res->code,    200;
+    is $res->content, "";
+
     };
 done_testing;
