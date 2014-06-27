@@ -42,8 +42,8 @@ __END__
 
   my $app = sub { ... } # as usual
 
-  builder {
-      enable "Plack::Middleware::OptionsOK",
+  $app = builder {
+      enable "Plack::Middleware::OptionsOK";
       $app;
   };
 
